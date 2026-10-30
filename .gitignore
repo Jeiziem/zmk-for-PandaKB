@@ -1,0 +1,12 @@
+# AI agent tooling
+.atl/
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+odd/
+.engram/
+.cursor/
+.codex/
+.opencode/
+.gemini/
+AGENTS.md

@@ -30,9 +30,7 @@ manifest:
     - name: hammerbeam-slideshow
       remote: gpeye
       revision: main
-    - name: zmk-nice-oled
-      remote: mctechnology17
-      revision: main
+  # zmk-nice-oled is vendored in boards/shields/nice_oled (temporary RGB indicator fork)
     - name: nice-view-elemental
       remote: kevinpastor
       revision: main

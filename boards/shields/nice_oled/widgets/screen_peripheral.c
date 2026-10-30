@@ -17,6 +17,9 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "battery.h"
 #include "output.h"
 #include "screen_peripheral.h"
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_RGB_STATUS)
+#include "rgb_status.h"
+#endif
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
@@ -50,6 +53,9 @@ static void draw_canvas(lv_obj_t *widget, lv_color_t cbuf[], const struct status
     draw_background(canvas);
     draw_output_status(canvas, state);
     draw_battery_status(canvas, state);
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_RGB_STATUS)
+    draw_rgb_status(canvas);
+#endif
 
     // Rotate for horizontal display
     rotate_canvas(canvas, cbuf);
@@ -135,6 +141,19 @@ ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_status, struct peripheral_status_s
 ZMK_SUBSCRIPTION(widget_peripheral_status, zmk_split_peripheral_status_changed);
 
 /**
+ * RGB underglow status
+ **/
+
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_RGB_STATUS)
+static void rgb_status_update_cb(void) {
+    struct zmk_widget_screen *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        draw_canvas(widget->obj, widget->cbuf, &widget->state);
+    }
+}
+#endif
+
+/**
  * Initialization
  **/
 
@@ -153,6 +172,9 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
 #endif
     widget_battery_status_init();
     widget_peripheral_status_init();
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_RGB_STATUS)
+    rgb_status_init(rgb_status_update_cb);
+#endif
 
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_ANIMATION_PERIPHERAL_WPM)
     zmk_widget_luna_init(&luna_widget, canvas);

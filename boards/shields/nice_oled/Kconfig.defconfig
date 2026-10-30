@@ -88,6 +88,11 @@ config NICE_OLED_WIDGET_OUTPUT_BACKGROUND
     default y if NICE_EPAPER_ON
     default y if NICE_CUSTOM_ON
 
+config NICE_OLED_WIDGET_RGB_STATUS
+    bool "Show RGB underglow on/off indicator on central and peripheral"
+    depends on ZMK_RGB_UNDERGLOW
+    default y if ZMK_RGB_UNDERGLOW
+
 config NICE_OLED_SHOW_SLEEP_ART_ON_IDLE
     bool "whether the sleep art should be shown on idle"
     default n

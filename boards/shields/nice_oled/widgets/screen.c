@@ -198,6 +198,9 @@ static void draw_battery_text(lv_obj_t *canvas, const struct status_state *state
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_WPM)
 #include "wpm.h"
 #endif // IS_ENABLED(CONFIG_NICE_OLED_WIDGET_WPM)
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_RGB_STATUS)
+#include "rgb_status.h"
+#endif
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
@@ -890,6 +893,10 @@ static void draw_canvas(lv_obj_t *widget, lv_color_t cbuf[], const struct status
     draw_mods_status(canvas, state);
 #endif // <-- NUEVO
 
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_RGB_STATUS)
+    draw_rgb_status(canvas);
+#endif
+
     // Rotate for horizontal display
     rotate_canvas(canvas, cbuf);
 }
@@ -1106,6 +1113,19 @@ ZMK_SUBSCRIPTION(widget_wpm_status, zmk_wpm_state_changed);
 #endif // IS_ENABLED(CONFIG_NICE_OLED_WIDGET_WPM)
 
 /**
+ * RGB underglow status
+ **/
+
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_RGB_STATUS)
+static void rgb_status_update_cb(void) {
+    struct zmk_widget_screen *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        draw_canvas(widget->obj, widget->cbuf, &widget->state);
+    }
+}
+#endif
+
+/**
  * Initialization
  **/
 
@@ -1128,6 +1148,9 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_WPM)
     widget_wpm_status_init();
 #endif // IS_ENABLED(CONFIG_NICE_OLED_WIDGET_WPM)
+#if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_RGB_STATUS)
+    rgb_status_init(rgb_status_update_cb);
+#endif
 
 #if IS_ENABLED(CONFIG_NICE_OLED_WIDGET_WPM)
 

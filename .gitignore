@@ -10,3 +10,7 @@ odd/
 .opencode/
 .gemini/
 AGENTS.md
+
+# Local ZMK build (scripts/build.sh)
+.zmk/
+firmware/

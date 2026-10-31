@@ -46,8 +46,9 @@ if [ ! -d .west ]; then
 fi
 if ${force_update}; then
     west update --fetch-opt=--filter=tree:0
-    west zephyr-export
 fi
+# The container is ephemeral, so the Zephyr CMake package must be registered on every run.
+west zephyr-export
 
 mkdir -p "${OUT_DIR}"
 built=()

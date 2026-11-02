@@ -9,11 +9,34 @@
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/rgb.h>
 
+// Layer indices. Higher index wins when several layers are active, so the
+// shared lower layer must sit above both base layers.
+#define BASE_US 0
+#define BASE_LA 1
+#define LOWER 2
+#define RAISE_US 3
+#define RAISE_LA 4
+
 / {
+        // Latam has no plain ^ or ` key, only dead keys: tap them followed by space.
+        macros {
+                la_caret: la_caret {
+                        compatible = "zmk,behavior-macro";
+                        #binding-cells = <0>;
+                        bindings = <&kp RA(SQT) &kp SPACE>;
+                };
+                la_grave: la_grave {
+                        compatible = "zmk,behavior-macro";
+                        #binding-cells = <0>;
+                        bindings = <&kp RA(BSLH) &kp SPACE>;
+                };
+        };
+
         keymap {
                 compatible = "zmk,keymap";
 
                 default_layer {
+// US layout. Expects the OS keyboard layout set to US.
 // -----------------------------------------------------------------------------------------
 // |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U   |  I  |  O  |  P  | BKSP |
 // | CTRL |  A  |  S  |  D  |  F  |  G  |   |  H  |  J   |  K  |  L  |  ;  |  '   |
@@ -23,26 +46,46 @@
    &kp TAB   &kp Q &kp W &kp E &kp R &kp T   &kp Y &kp U  &kp I     &kp O   &kp P    &kp BSPC
    &kp LCTRL &kp A &kp S &kp D &kp F &kp G   &kp H &kp J  &kp K     &kp L   &kp SEMI &kp SQT
    &kp LSHFT &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp ESC
-                  &kp LGUI &mo 1 &kp SPACE   &kp RET &mo 2 &kp RALT
+                  &kp LGUI &mo LOWER &kp SPACE   &kp RET &mo RAISE_US &kp RALT
                         >;
-                display-name = "LAYER 0";
+                display-name = "US";
                 };
+
+                latam_layer {
+// Latin American layout. Expects the OS keyboard layout set to latam.
+// Toggled with Lower + '. ACUT is the dead acute accent (tap it, then the vowel).
+// -----------------------------------------------------------------------------------------
+// |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U   |  I  |  O  |  P  | BKSP |
+// | CTRL |  A  |  S  |  D  |  F  |  G  |   |  H  |  J   |  K  |  L  |  N~ | ACUT |
+// | SHFT |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M   |  ,  |  .  |  -  | ESC  |
+//                    | GUI | LWR | SPC |   | ENT | RSE  | ALT |
+                        bindings = <
+   &kp TAB   &kp Q &kp W &kp E &kp R &kp T   &kp Y &kp U  &kp I     &kp O   &kp P    &kp BSPC
+   &kp LCTRL &kp A &kp S &kp D &kp F &kp G   &kp H &kp J  &kp K     &kp L   &kp SEMI &kp LBKT
+   &kp LSHFT &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp ESC
+                  &kp LGUI &mo LOWER &kp SPACE   &kp RET &mo RAISE_LA &kp RALT
+                        >;
+                display-name = "LATAM";
+                };
+
                 lower_layer {
+// Shared by both base layers. LA toggles the latam base layer.
 // -----------------------------------------------------------------------------------------
 // |  TAB |  1  |  2  |  3  |  4  |  5  |   |  6  |  7  |  8  |  9  |  0  | BKSP |
-// | BTCLR| BT1 | BT2 | BT3 | BT4 | BT5 |   | LFT | DWN |  UP | RGT |     |      |
-// | SHFT | RGB |     |     |     |     |   |     |     |     |     |     |      |
+// | BTCLR| BT1 | BT2 | BT3 | BT4 | BT5 |   | LFT | DWN |  UP | RGT |     |  LA  |
+// | SHFT | RGB | EFF | HUI | SAI | BRI |   | EFR | HUD | SAD | BRD | SPI | SPD  |
 //                    | GUI |     | SPC |   | ENT |     | ALT |
                         bindings = <
-   &kp TAB    &kp N1       &kp N2       &kp N3       &kp N4       &kp N5         &kp N6   &kp N7   &kp N8 &kp N9    &kp N0 &kp BSPC
-   &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4   &kp LEFT &kp DOWN &kp UP &kp RIGHT &trans &trans
-   &kp LSHFT  &rgb_ug RGB_TOG &trans    &trans       &trans       &trans         &trans   &trans   &trans &trans    &trans &trans
-                                    &kp LGUI     &trans       &kp SPACE      &kp RET  &trans   &kp RALT
+   &kp TAB    &kp N1          &kp N2          &kp N3          &kp N4          &kp N5            &kp N6          &kp N7          &kp N8          &kp N9          &kp N0          &kp BSPC
+   &bt BT_CLR &bt BT_SEL 0    &bt BT_SEL 1    &bt BT_SEL 2    &bt BT_SEL 3    &bt BT_SEL 4      &kp LEFT        &kp DOWN        &kp UP          &kp RIGHT       &trans          &tog BASE_LA
+   &kp LSHFT  &rgb_ug RGB_TOG &rgb_ug RGB_EFF &rgb_ug RGB_HUI &rgb_ug RGB_SAI &rgb_ug RGB_BRI   &rgb_ug RGB_EFR &rgb_ug RGB_HUD &rgb_ug RGB_SAD &rgb_ug RGB_BRD &rgb_ug RGB_SPI &rgb_ug RGB_SPD
+                                              &kp LGUI        &trans          &kp SPACE         &kp RET         &trans          &kp RALT
                         >;
-                display-name = "LAYER 1";
+                display-name = "LOWER";
                 };
 
                 raise_layer {
+// US symbols. Expects the OS keyboard layout set to US.
 // -----------------------------------------------------------------------------------------
 // |  TAB |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &  |  *  |  (  |  )  | BKSP |
 // | CTRL |     |     |     |     |     |   |  -  |  =  |  [  |  ]  |  \  |  `   |
@@ -54,8 +97,27 @@
    &kp LSHFT &trans   &trans &trans   &trans   &trans      &kp UNDER &kp PLUS  &kp LBRC        &kp RBRC &kp PIPE &kp TILDE
                              &kp LGUI &trans   &kp SPACE   &kp RET   &trans    &kp RALT
                         >;
-                display-name = "LAYER 2";
+                display-name = "RAISE";
                 };
+
+                raise_latam_layer {
+// Same symbols as the US raise layer, encoded for the latam OS layout,
+// plus extras on the left half that the latam base layer lacks.
+// -----------------------------------------------------------------------------------------
+// |  TAB |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &  |  *  |  (  |  )  | BKSP |
+// | CTRL |  '  |  "  |  /  |  ?  | INVQ|   |  -  |  =  |  [  |  ]  |  \  |  `   |
+// | SHFT |  <  |  >  | INVE|  ;  |  :  |   |  _  |  +  |  {  |  }  | "|" |  ~   |
+//                    | GUI |     | SPC |   | ENT |     | ALT |
+// INVQ = inverted question mark, INVE = inverted exclamation mark.
+                        bindings = <
+   &kp TAB   &kp LS(N1) &kp RA(N2)    &kp LS(N3)     &kp LS(N4)     &kp LS(N5)      &la_caret     &kp LS(N6) &kp LS(RBKT) &kp LS(N8)  &kp LS(N9)  &kp BSPC
+   &kp LCTRL &kp MINUS  &kp LS(N2)    &kp LS(N7)     &kp LS(MINUS)  &kp EQUAL       &kp FSLH      &kp LS(N0) &kp LS(SQT)  &kp LS(BSLH) &kp RA(MINUS) &la_grave
+   &kp LSHFT &kp NUBS   &kp LS(NUBS)  &kp LS(EQUAL)  &kp LS(COMMA)  &kp LS(DOT)     &kp LS(FSLH)  &kp RBKT   &kp SQT      &kp BSLH    &kp GRAVE   &kp RA(RBKT)
+                                      &kp LGUI       &trans         &kp SPACE       &kp RET       &trans     &kp RALT
+                        >;
+                display-name = "RAISE LA";
+                };
+
         extra1 { status = "reserved"; };
 
         extra2 { status = "reserved"; };

@@ -26,33 +26,33 @@ manifest:
       remote: zmkfirmware
       revision: v0.3
       import: app/west.yml
-  #additional module
+  #additional module (pinned to tested commits; bump deliberately)
     - name: hammerbeam-slideshow
       remote: gpeye
-      revision: main
+      revision: 9c16436efa4c87d19e2e4558927969c7ddd5851d
     - name: zmk-nice-oled
       remote: mctechnology17
-      revision: main
+      revision: 46f824abb2bd41f1287c5c68abd14122af6042a3
     - name: nice-view-elemental
       remote: kevinpastor
-      revision: main
+      revision: 69c2ecd56b0b870ddb94b79110ef5a2152ca4a3a
     - name: nice-view-gem
       remote: m165437
-      revision: main
+      revision: 0a50fe209d929c916c5664c6affd0f4977c6b012
     - name: zmk-shield-nice-view-cats
       remote: s6t
-      revision: main
+      revision: 6835afe70678f3fc6e4dfb9b0d0ddbf9298c409a
     - name: nice-view-battery
       remote: infely
-      revision: main
+      revision: a9ebccd6309e21525577dc35fea4eb107bda7cd1
     - name: zmk-dongle-screen
       remote: penguinchat
-      revision: Penguinchat-patch-1
+      revision: d878027ea6da2551fa0b455041dac1c90e9aed42
     - name: zmk-for-PandaKB.com-
       remote: penguinchat
-      revision: PandaKB_Lily58
+      revision: ad4125a9c46121048ee4bb189188817746afe91f
     - name: zmk-dongle-display
       remote: englmaxi
-      revision: v0.3
+      revision: c6c4be11c5ede722086a2a1f355cec9c101b9390
   self:
     path: config

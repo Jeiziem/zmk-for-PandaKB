@@ -188,14 +188,14 @@
 // Active only when holding both LOWER and RAISE (US or LA).
 // -----------------------------------------------------------------------------------------
 // |  F1  |  F2 |  F3 |  F4 |  F5 |  F6 |   |  F7 |  F8 |  F9 | F10 | F11 | F12  |
-// | BTCLR| BT1 | BT2 | BT3 | BT4 | BT5 |   |     |     |     |     |     |      |
-// |      | RGB | EFF | HUI | SAI | BRI |   | EFR | HUD | SAD | BRD | SPI | SPD  |
-//                    |     |     |     |   |     |     |     |
+// | CTRL | GUI | ALT | CTRL| SHFT|     |   | RGB | EFF | HUI | SAI | BRI | SPI  |
+// | BTCLR| BT1 | BT2 | BT3 | BT4 | BT5 |   |     | EFR | HUD | SAD | BRD | SPD  |
+//                    | GUI |     |     |   |     |     |     |
                         bindings = <
-   &kp F1     &kp F2          &kp F3          &kp F4          &kp F5          &kp F6            &kp F7          &kp F8          &kp F9          &kp F10         &kp F11         &kp F12
-   &bt BT_CLR &bt BT_SEL 0    &bt BT_SEL 1    &bt BT_SEL 2    &bt BT_SEL 3    &bt BT_SEL 4      &trans          &trans          &trans          &trans          &trans          &trans
-   &trans     &rgb_ug RGB_TOG &rgb_ug RGB_EFF &rgb_ug RGB_HUI &rgb_ug RGB_SAI &rgb_ug RGB_BRI   &rgb_ug RGB_EFR &rgb_ug RGB_HUD &rgb_ug RGB_SAD &rgb_ug RGB_BRD &rgb_ug RGB_SPI &rgb_ug RGB_SPD
-                                              &trans          &trans          &trans            &trans          &trans          &trans
+   &kp F1     &kp F2       &kp F3       &kp F4       &kp F5       &kp F6         &kp F7          &kp F8          &kp F9          &kp F10         &kp F11         &kp F12
+   &kp LCTRL  &kp LGUI     &kp LALT     &kp LCTRL    &kp LSHFT    &trans         &rgb_ug RGB_TOG &rgb_ug RGB_EFF &rgb_ug RGB_HUI &rgb_ug RGB_SAI &rgb_ug RGB_BRI &rgb_ug RGB_SPI
+   &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4   &trans          &rgb_ug RGB_EFR &rgb_ug RGB_HUD &rgb_ug RGB_SAD &rgb_ug RGB_BRD &rgb_ug RGB_SPD
+                                        &kp LGUI     &trans       &trans         &trans          &trans          &trans
                         >;
                 display-name = "ADJUST";
                 };

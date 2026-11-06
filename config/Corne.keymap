@@ -18,8 +18,21 @@
 #define RAISE_US 4
 #define ADJUST 5
 #define QTILE 6
+#define FKEYS 7
 
 / {
+        conditional_layers {
+                compatible = "zmk,conditional-layers";
+                tri_layer_us {
+                        if-layers = <LOWER RAISE_US>;
+                        then-layer = <ADJUST>;
+                };
+                tri_layer_la {
+                        if-layers = <LOWER RAISE_LA>;
+                        then-layer = <ADJUST>;
+                };
+        };
+
         behaviors {
                 // Hold: Shift. Tap alone: Caps Lock.
                 shift_caps: shift_caps {
@@ -29,34 +42,21 @@
                         tapping-term-ms = <200>;
                         bindings = <&kp>, <&kp>;
                 };
-                // Hold: lower layer while held. Tap alone: lock/unlock the lower layer (number lock).
-                lower_lock: lower_lock {
+                // Hold LWR = instant LOWER layer (0ms delay). Tap LWR alone = one-shot QTILE layer (&sl QTILE).
+                lwr_qtile: lwr_qtile {
+                        compatible = "zmk,behavior-hold-tap";
+                        #binding-cells = <2>;
+                        flavor = "hold-preferred";
+                        tapping-term-ms = <200>;
+                        bindings = <&mo>, <&sl>;
+                };
+                // Hold RSE = instant RAISE layer (0ms delay). Tap RSE alone = lock/unlock FKEYS layer (&tog FKEYS).
+                rse_fkeys: rse_fkeys {
                         compatible = "zmk,behavior-hold-tap";
                         #binding-cells = <2>;
                         flavor = "hold-preferred";
                         tapping-term-ms = <200>;
                         bindings = <&mo>, <&tog>;
-                };
-                // Tap-dance on LWR: 1x hold/tap = lower_lock, 2x tap = one-shot QTILE layer (or hold 2nd tap to keep QTILE active).
-                lwr_td: lwr_td {
-                        compatible = "zmk,behavior-tap-dance";
-                        #binding-cells = <0>;
-                        tapping-term-ms = <250>;
-                        bindings = <&lower_lock LOWER LOWER>, <&sl QTILE>;
-                };
-                // Tap-dance on RSE (LATAM): 1x hold = RAISE_LA, 2x tap = toggle ADJUST (locks F1..F12 for debugging).
-                rse_la_td: rse_la_td {
-                        compatible = "zmk,behavior-tap-dance";
-                        #binding-cells = <0>;
-                        tapping-term-ms = <250>;
-                        bindings = <&mo RAISE_LA>, <&tog ADJUST>;
-                };
-                // Tap-dance on RSE (US): 1x hold = RAISE_US, 2x tap = toggle ADJUST (locks F1..F12 for debugging).
-                rse_us_td: rse_us_td {
-                        compatible = "zmk,behavior-tap-dance";
-                        #binding-cells = <0>;
-                        tapping-term-ms = <250>;
-                        bindings = <&mo RAISE_US>, <&tog ADJUST>;
                 };
                 // Tap-dance on left thumb GUI: 1x hold/tap = LGUI, 2x hold/tap = LALT.
                 gui_alt: gui_alt {
@@ -64,16 +64,6 @@
                         #binding-cells = <0>;
                         tapping-term-ms = <250>;
                         bindings = <&kp LGUI>, <&kp LALT>;
-                };
-                // Home row mods: tap-preferred + 350ms term + 200ms prior-idle so fast rolls never misfire mods.
-                hrm: hrm {
-                        compatible = "zmk,behavior-hold-tap";
-                        #binding-cells = <2>;
-                        flavor = "tap-preferred";
-                        tapping-term-ms = <350>;
-                        quick-tap-ms = <200>;
-                        require-prior-idle-ms = <200>;
-                        bindings = <&kp>, <&kp>;
                 };
         };
 
@@ -109,53 +99,50 @@
                 latam_layer {
 // Latin American layout (default). Expects the OS keyboard layout set to latam.
 // ACUT is the dead acute accent (tap it, then the vowel).
-// Home row mods (GACS): A/S/D/F = GUI/ALT/CTRL/SHFT, J/K/L/N~ = SHFT/CTRL/ALT/GUI.
 // -----------------------------------------------------------------------------------------
 // |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U   |  I  |  O  |  P  | BKSP |
 // | CTRL |  A  |  S  |  D  |  F  |  G  |   |  H  |  J   |  K  |  L  |  N~ | ACUT |
 // | SFCP |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M   |  ,  |  .  |  -  | ESC  |
 //                    | GUI | LWR | SPC |   | ENT | RSE  | ALT |
-// SFCP: hold = Shift, tap = Caps Lock. LWR: hold = lower, tap = lock lower (numbers).
+// SFCP: hold = Shift, tap = Caps Lock. LWR: hold = LOWER, tap = QTILE. RSE: hold = RAISE, tap = FKEYS.
                         bindings = <
-   &kp TAB   &kp Q        &kp W        &kp E         &kp R         &kp T   &kp Y &kp U         &kp I         &kp O        &kp P           &kp BSPC
-   &kp LCTRL &hrm LGUI A  &hrm LALT S  &hrm LCTRL D  &hrm LSHFT F  &kp G   &kp H &hrm RSHFT J  &hrm RCTRL K  &hrm LALT L  &hrm RGUI SEMI  &kp LBKT
+   &kp TAB   &kp Q &kp W &kp E &kp R &kp T   &kp Y &kp U  &kp I     &kp O   &kp P    &kp BSPC
+   &kp LCTRL &kp A &kp S &kp D &kp F &kp G   &kp H &kp J  &kp K     &kp L   &kp SEMI &kp LBKT
    &shift_caps LSHFT CAPS &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp ESC
-                  &gui_alt &lwr_td &kp SPACE   &kp RET &rse_la_td &kp RALT
+                  &gui_alt &lwr_qtile LOWER QTILE &kp SPACE   &kp RET &rse_fkeys RAISE_LA FKEYS &kp RALT
                         >;
                 display-name = "LATAM";
                 };
 
                 us_layer {
 // US layout. Expects the OS keyboard layout set to US. Toggled with Lower + '.
-// Home row mods (GACS): A/S/D/F = GUI/ALT/CTRL/SHFT, J/K/L/; = SHFT/CTRL/ALT/GUI.
 // -----------------------------------------------------------------------------------------
 // |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U   |  I  |  O  |  P  | BKSP |
 // | CTRL |  A  |  S  |  D  |  F  |  G  |   |  H  |  J   |  K  |  L  |  ;  |  '   |
 // | SFCP |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M   |  ,  |  .  |  /  | ESC  |
 //                    | GUI | LWR | SPC |   | ENT | RSE  | ALT |
-// SFCP: hold = Shift, tap = Caps Lock. LWR: hold = lower, tap = lock lower (numbers).
+// SFCP: hold = Shift, tap = Caps Lock. LWR: hold = LOWER, tap = QTILE. RSE: hold = RAISE, tap = FKEYS.
                         bindings = <
-   &kp TAB   &kp Q        &kp W        &kp E         &kp R         &kp T   &kp Y &kp U         &kp I         &kp O        &kp P           &kp BSPC
-   &kp LCTRL &hrm LGUI A  &hrm LALT S  &hrm LCTRL D  &hrm LSHFT F  &kp G   &kp H &hrm RSHFT J  &hrm RCTRL K  &hrm LALT L  &hrm RGUI SEMI  &kp SQT
+   &kp TAB   &kp Q &kp W &kp E &kp R &kp T   &kp Y &kp U  &kp I     &kp O   &kp P    &kp BSPC
+   &kp LCTRL &kp A &kp S &kp D &kp F &kp G   &kp H &kp J  &kp K     &kp L   &kp SEMI &kp SQT
    &shift_caps LSHFT CAPS &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp ESC
-                  &gui_alt &lwr_td &kp SPACE   &kp RET &rse_us_td &kp RALT
+                  &gui_alt &lwr_qtile LOWER QTILE &kp SPACE   &kp RET &rse_fkeys RAISE_US FKEYS &kp RALT
                         >;
                 display-name = "US";
                 };
 
                 lower_layer {
-// Shared by both base layers. US toggles the US base layer.
-// Holding RSE while in LOWER activates ADJUST.
+// Shared by both base layers. US toggles the US base layer. NLK locks/unlocks LOWER (Num Lock).
 // -----------------------------------------------------------------------------------------
 // | ATAB |  1  |  2  |  3  |  4  |  5  |   |  6  |  7   |  8   |  9  |  0  | BKSP |
 // | CTRL | GUI | ALT | CTRL| SHFT|     |   | LFT | DWN  |  UP  | RGT | DEL |  US  |
-// | SHFT |     |     |     |     |     |   | HOME| PGDN | PGUP | END |     |      |
-//                    | GUI |     | SPC |   | ENT | ADJ  | ALT  |
+// | SHFT |     |     |     |     |     |   | HOME| PGDN | PGUP | END |     | NLK  |
+//                    | GUI |     | SPC |   | ENT |      | ALT  |
                         bindings = <
    &alt_tab  &kp N1   &kp N2   &kp N3    &kp N4    &kp N5      &kp N6   &kp N7    &kp N8    &kp N9    &kp N0  &kp BSPC
    &kp LCTRL &kp LGUI &kp LALT &kp LCTRL &kp LSHFT &trans      &kp LEFT &kp DOWN  &kp UP    &kp RIGHT &kp DEL &tog BASE_US
-   &kp LSHFT &trans   &trans   &trans    &trans    &trans      &kp HOME &kp PG_DN &kp PG_UP &kp END   &trans  &trans
-                               &gui_alt  &trans    &kp SPACE   &kp RET  &mo ADJUST &kp RALT
+   &kp LSHFT &trans   &trans   &trans    &trans    &trans      &kp HOME &kp PG_DN &kp PG_UP &kp END   &trans  &tog LOWER
+                               &gui_alt  &trans    &kp SPACE   &kp RET  &trans    &kp RALT
                         >;
                 display-name = "LOWER";
                 };
@@ -167,13 +154,13 @@
 // |  TAB |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &  |  *  |  (  |  )  | BKSP |
 // | CTRL |  '  |  "  |  /  |  ?  | INVQ|   |  -  |  =  |  [  |  ]  |  \  |  `   |
 // | SHFT |  <  |  >  | INVE|  ;  |  :  |   |  _  |  +  |  {  |  }  | "|" |  ~   |
-//                    | GUI | ADJ | SPC |   | ENT |     | ALT |
+//                    | GUI |     | SPC |   | ENT |     | ALT |
 // INVQ = inverted question mark, INVE = inverted exclamation mark.
                         bindings = <
    &kp TAB   &kp LS(N1) &kp RA(N2)    &kp LS(N3)     &kp LS(N4)     &kp LS(N5)      &la_caret     &kp LS(N6) &kp LS(RBKT) &kp LS(N8)  &kp LS(N9)  &kp BSPC
    &kp LCTRL &kp MINUS  &kp LS(N2)    &kp LS(N7)     &kp LS(MINUS)  &kp EQUAL       &kp FSLH      &kp LS(N0) &kp LS(SQT)  &kp LS(BSLH) &kp RA(MINUS) &la_grave
    &kp LSHFT &kp NUBS   &kp LS(NUBS)  &kp LS(EQUAL)  &kp LS(COMMA)  &kp LS(DOT)     &kp LS(FSLH)  &kp RBKT   &kp SQT      &kp BSLH    &kp GRAVE   &kp RA(RBKT)
-                                      &gui_alt       &mo ADJUST     &kp SPACE       &kp RET       &trans     &kp RALT
+                                      &gui_alt       &trans         &kp SPACE       &kp RET       &trans     &kp RALT
                         >;
                 display-name = "RAISE LA";
                 };
@@ -184,29 +171,28 @@
 // |  TAB |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &  |  *  |  (  |  )  | BKSP |
 // | CTRL |     |     |     |     |     |   |  -  |  =  |  [  |  ]  |  \  |  `   |
 // | SHFT |     |     |     |     |     |   |  _  |  +  |  {  |  }  | "|" |  ~   |
-//                    | GUI | ADJ | SPC |   | ENT |     | ALT |
+//                    | GUI |     | SPC |   | ENT |     | ALT |
                         bindings = <
    &kp  TAB  &kp EXCL &kp AT &kp HASH &kp DLLR &kp PRCNT   &kp CARET &kp AMPS  &kp KP_MULTIPLY &kp LPAR &kp RPAR &kp BSPC
    &kp LCTRL &trans   &trans &trans   &trans   &trans      &kp MINUS &kp EQUAL &kp LBKT        &kp RBKT &kp BSLH &kp GRAVE
    &kp LSHFT &trans   &trans &trans   &trans   &trans      &kp UNDER &kp PLUS  &kp LBRC        &kp RBRC &kp PIPE &kp TILDE
-                             &gui_alt &mo ADJUST &kp SPACE   &kp RET   &trans    &kp RALT
+                             &gui_alt &trans   &kp SPACE   &kp RET   &trans    &kp RALT
                         >;
                 display-name = "RAISE";
                 };
 
                 adjust_layer {
-// Active when holding both LOWER and RAISE, or locked via double-tap on RAISE.
-// Tap RAISE once while locked to exit back to the base layer.
+// Active when holding both LOWER and RAISE (via conditional_layers).
 // -----------------------------------------------------------------------------------------
 // |  F1  |  F2 |  F3 |  F4 |  F5 |  F6 |   |  F7 |  F8 |  F9 | F10 | F11 | F12  |
 // | CTRL | GUI | ALT | CTRL| SHFT|     |   | RGB | EFF | HUI | SAI | BRI | SPI  |
 // | BTCLR| BT1 | BT2 | BT3 | BT4 | BT5 |   |     | EFR | HUD | SAD | BRD | SPD  |
-//                    | GUI |     | SPC |   | ENT | EXIT| ALT |
+//                    | GUI |     | SPC |   | ENT |     | ALT |
                         bindings = <
    &kp F1     &kp F2       &kp F3       &kp F4       &kp F5       &kp F6         &kp F7          &kp F8          &kp F9          &kp F10         &kp F11         &kp F12
    &kp LCTRL  &kp LGUI     &kp LALT     &kp LCTRL    &kp LSHFT    &trans         &rgb_ug RGB_TOG &rgb_ug RGB_EFF &rgb_ug RGB_HUI &rgb_ug RGB_SAI &rgb_ug RGB_BRI &rgb_ug RGB_SPI
    &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4   &trans          &rgb_ug RGB_EFR &rgb_ug RGB_HUD &rgb_ug RGB_SAD &rgb_ug RGB_BRD &rgb_ug RGB_SPD
-                                        &gui_alt     &trans       &kp SPACE      &kp RET         &tog ADJUST     &kp RALT
+                                        &gui_alt     &trans       &kp SPACE      &kp RET         &trans          &kp RALT
                         >;
                 display-name = "ADJUST";
                 };
@@ -226,6 +212,23 @@
                                       &gui_alt      &trans     &kp SPACE    &kp RET      &trans       &kp RALT
                         >;
                 display-name = "QTILE";
+                };
+
+                fkeys_layer {
+// Locked via double-tap on RAISE for debugging (F1..F12 + modifiers).
+// Tap RAISE once while locked to exit back to the base layer.
+// -----------------------------------------------------------------------------------------
+// |  F1  |  F2 |  F3 |  F4 |  F5 |  F6 |   |  F7 |  F8 |  F9 | F10 | F11 | F12  |
+// | CTRL | GUI | ALT | CTRL| SHFT|     |   | LFT | DWN |  UP | RGT | DEL |      |
+// | SHFT |     |     |     |     |     |   | HOME| PGDN| PGUP| END |     | ESC  |
+//                    | GUI |     | SPC |   | ENT | EXIT| ALT |
+                        bindings = <
+   &kp F1    &kp F2   &kp F3   &kp F4    &kp F5    &kp F6      &kp F7   &kp F8    &kp F9    &kp F10   &kp F11 &kp F12
+   &kp LCTRL &kp LGUI &kp LALT &kp LCTRL &kp LSHFT &trans      &kp LEFT &kp DOWN  &kp UP    &kp RIGHT &kp DEL &trans
+   &kp LSHFT &trans   &trans   &trans    &trans    &trans      &kp HOME &kp PG_DN &kp PG_UP &kp END   &trans  &kp ESC
+                               &gui_alt  &trans    &kp SPACE   &kp RET  &tog FKEYS &kp RALT
+                        >;
+                display-name = "FKEYS";
                 };
 
         extra1 { status = "reserved"; };

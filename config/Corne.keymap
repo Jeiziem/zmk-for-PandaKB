@@ -55,7 +55,7 @@
                 gui_alt: gui_alt {
                         compatible = "zmk,behavior-tap-dance";
                         #binding-cells = <0>;
-                        tapping-term-ms = <250>;
+                        tapping-term-ms = <350>;
                         bindings = <&kp LGUI>, <&kp LALT>;
                 };
         };

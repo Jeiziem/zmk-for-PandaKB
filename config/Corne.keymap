@@ -43,11 +43,12 @@
                         tapping-term-ms = <200>;
                         bindings = <&mo>, <&tog>;
                 };
-                // On LOWER layer: Hold LWR (2nd press held after 1st tap) = hold QTILE and exit LOWER on release. Tap LWR alone = unlock Num Lock.
+                // On LOWER layer: Hold LWR (2nd press held after 1st tap) = hold QTILE immediately (0ms via hold-while-undecided) and exit LOWER on release. Tap LWR alone = unlock Num Lock.
                 lwr_in_lower: lwr_in_lower {
                         compatible = "zmk,behavior-hold-tap";
                         #binding-cells = <2>;
                         flavor = "hold-preferred";
+                        hold-while-undecided;
                         tapping-term-ms = <200>;
                         bindings = <&hold_qtile>, <&tog>;
                 };
@@ -65,12 +66,39 @@
                 la_caret: la_caret {
                         compatible = "zmk,behavior-macro";
                         #binding-cells = <0>;
-                        bindings = <&kp RA(SQT) &kp SPACE>;
+                        wait-ms = <20>;
+                        tap-ms = <20>;
+                        bindings
+                                = <&macro_press &kp RALT>
+                                , <&macro_tap &kp SQT>
+                                , <&macro_release &kp RALT>
+                                , <&macro_tap &kp SPACE>
+                                ;
                 };
                 la_grave: la_grave {
                         compatible = "zmk,behavior-macro";
                         #binding-cells = <0>;
-                        bindings = <&kp RA(BSLH) &kp SPACE>;
+                        wait-ms = <20>;
+                        tap-ms = <20>;
+                        bindings
+                                = <&macro_press &kp RALT>
+                                , <&macro_tap &kp BSLH>
+                                , <&macro_release &kp RALT>
+                                , <&macro_tap &kp SPACE>
+                                ;
+                };
+                // Holds RALT (AltGr) first, taps the key, then releases RALT so latam AltGr symbols (@, \, ~) never drop the modifier.
+                la_altgr: la_altgr {
+                        compatible = "zmk,behavior-macro-one-param";
+                        #binding-cells = <1>;
+                        wait-ms = <20>;
+                        tap-ms = <20>;
+                        bindings
+                                = <&macro_press &kp RALT>
+                                , <&macro_param_1to1>
+                                , <&macro_tap &kp MACRO_PLACEHOLDER>
+                                , <&macro_release &kp RALT>
+                                ;
                 };
                 alt_tab: alt_tab {
                         compatible = "zmk,behavior-macro";
@@ -95,6 +123,19 @@
                                 , <&macro_pause_for_release>
                                 , <&macro_release &mo QTILE>
                                 , <&macro_tap &tog LOWER>
+                                ;
+                };
+                // Holds LCTRL + LALT first, taps the given key, then releases LCTRL + LALT so VS Code / X11 always register both modifiers.
+                ctrl_alt: ctrl_alt {
+                        compatible = "zmk,behavior-macro-one-param";
+                        #binding-cells = <1>;
+                        wait-ms = <30>;
+                        tap-ms = <30>;
+                        bindings
+                                = <&macro_press &kp LCTRL &kp LALT>
+                                , <&macro_param_1to1>
+                                , <&macro_tap &kp MACRO_PLACEHOLDER>
+                                , <&macro_release &kp LCTRL &kp LALT>
                                 ;
                 };
         };
@@ -162,9 +203,9 @@
 //                    | GUI |     | SPC |   | ENT |     | ALT |
 // INVQ = inverted question mark, INVE = inverted exclamation mark.
                         bindings = <
-   &kp TAB   &kp LS(N1) &kp RA(N2)    &kp LS(N3)     &kp LS(N4)     &kp LS(N5)      &la_caret     &kp LS(N6) &kp LS(RBKT) &kp LS(N8)  &kp LS(N9)  &kp BSPC
-   &kp LCTRL &kp MINUS  &kp LS(N2)    &kp LS(N7)     &kp LS(MINUS)  &kp EQUAL       &kp FSLH      &kp LS(N0) &kp LS(SQT)  &kp LS(BSLH) &kp RA(MINUS) &la_grave
-   &kp LSHFT &kp NUBS   &kp LS(NUBS)  &kp LS(EQUAL)  &kp LS(COMMA)  &kp LS(DOT)     &kp LS(FSLH)  &kp RBKT   &kp SQT      &kp BSLH    &kp GRAVE   &kp RA(RBKT)
+   &kp TAB   &kp LS(N1) &la_altgr N2  &kp LS(N3)     &kp LS(N4)     &kp LS(N5)      &la_caret     &kp LS(N6) &kp LS(RBKT) &kp LS(N8)   &kp LS(N9)      &kp BSPC
+   &kp LCTRL &kp MINUS  &kp LS(N2)    &kp LS(N7)     &kp LS(MINUS)  &kp EQUAL       &kp FSLH      &kp LS(N0) &kp LS(SQT)  &kp LS(BSLH) &la_altgr MINUS &la_grave
+   &kp LSHFT &kp NUBS   &kp LS(NUBS)  &kp LS(EQUAL)  &kp LS(COMMA)  &kp LS(DOT)     &kp LS(FSLH)  &kp RBKT   &kp SQT      &kp BSLH     &kp GRAVE       &la_altgr RBKT
                                       &gui_alt       &trans         &kp SPACE       &kp RET       &trans     &kp RALT
                         >;
                 display-name = "RAISE";
@@ -195,10 +236,10 @@
 // | SHFT |     |      |      |     |     |   |     |      |      |      |     |      |
 //                    | GUI |     | SPC |   | ENT |      | ALT  |
                         bindings = <
-   &alt_tab  &kp LG(N1) &kp LG(N2)    &kp LG(N3)    &kp LG(N4) &kp LG(N5)   &kp LG(N6)   &kp LG(N7)   &kp LG(N8) &kp LG(N9)    &kp LG(N0) &kp BSPC
-   &kp LCTRL &trans     &kp LC(LA(S)) &kp LC(LA(D)) &trans     &trans       &kp LG(LEFT) &kp LG(DOWN) &kp LG(UP) &kp LG(RIGHT) &trans     &trans
-   &kp LSHFT &trans     &trans        &trans        &trans     &trans       &trans       &trans       &trans     &trans        &trans     &trans
-                                      &gui_alt      &trans     &kp SPACE    &kp RET      &trans       &kp RALT
+   &alt_tab  &kp LG(N1) &kp LG(N2)  &kp LG(N3)  &kp LG(N4) &kp LG(N5)   &kp LG(N6)   &kp LG(N7)   &kp LG(N8) &kp LG(N9)    &kp LG(N0) &kp BSPC
+   &kp LCTRL &trans     &ctrl_alt S &ctrl_alt D &trans     &trans       &kp LG(LEFT) &kp LG(DOWN) &kp LG(UP) &kp LG(RIGHT) &trans     &trans
+   &kp LSHFT &trans     &trans      &trans      &trans     &trans       &trans       &trans       &trans     &trans        &trans     &trans
+                                    &gui_alt    &trans     &kp SPACE    &kp RET      &trans       &kp RALT
                         >;
                 display-name = "QTILE";
                 };

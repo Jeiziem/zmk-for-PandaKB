@@ -181,12 +181,12 @@
 // Numbers and navigation. FN toggles FKEYS layer.
 // When LOWER is locked (via 1x tap on LWR), tapping LWR unlocks it, or holding LWR enters QTILE.
 // -----------------------------------------------------------------------------------------
-// | ATAB |  1  |  2  |  3  |  4  |  5  |   |  6  |  7   |  8   |  9  |  0  | BKSP |
+// |  TAB |  1  |  2  |  3  |  4  |  5  |   |  6  |  7   |  8   |  9  |  0  | BKSP |
 // | CTRL | GUI | ALT | CTRL| SHFT|     |   | LFT | DWN  |  UP  | RGT | DEL |  FN  |
 // | SHFT |     |     |     |     |     |   | HOME| PGDN | PGUP | END |     |      |
 //                    | GUI | QTL | SPC |   | ENT |      | ALT  |
                         bindings = <
-   &alt_tab  &kp N1   &kp N2   &kp N3    &kp N4    &kp N5      &kp N6   &kp N7    &kp N8    &kp N9    &kp N0  &kp BSPC
+   &kp TAB   &kp N1   &kp N2   &kp N3    &kp N4    &kp N5      &kp N6   &kp N7    &kp N8    &kp N9    &kp N0  &kp BSPC
    &kp LCTRL &kp LGUI &kp LALT &kp LCTRL &kp LSHFT &trans      &kp LEFT &kp DOWN  &kp UP    &kp RIGHT &kp DEL &tog FKEYS
    &kp LSHFT &trans   &trans   &trans    &trans    &trans      &kp HOME &kp PG_DN &kp PG_UP &kp END   &trans  &trans
                                &gui_alt  &lwr_in_lower 0 LOWER &kp SPACE   &kp RET  &trans    &kp RALT

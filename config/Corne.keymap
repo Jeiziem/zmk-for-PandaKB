@@ -166,12 +166,12 @@
 // Num pad toggled with a double tap on RSE (double tap again to leave). Digits sit in the numpad
 // arrangement starting at the U column; 0 is on the right thumb ALT key. Everything else falls through to L1.
 // -----------------------------------------------------------------------------------------
-// |      |     |     |     |     |     |   |     |  7  |  8  |  9  |     |      |
+// |      |     |     |     |     |     |   | PRTSC|  7  |  8  |  9  |     |      |
 // |      |     |     |     |     |     |   |     |  4  |  5  |  6  |     |      |
 // |      |     |     |     |     |     |   |     |  1  |  2  |  3  |     |      |
 //                    |     |     |     |   |     |     |  0  |
                         bindings = <
-   &trans &trans &trans &trans &trans &trans   &trans &kp N7 &kp N8 &kp N9 &trans &trans
+   &trans &trans &trans &trans &trans &trans   &kp PSCRN &kp N7 &kp N8 &kp N9 &trans &trans
    &trans &trans &trans &trans &trans &trans   &trans &kp N4 &kp N5 &kp N6 &trans &trans
    &trans &trans &trans &trans &trans &trans   &trans &kp N1 &kp N2 &kp N3 &trans &trans
                          &trans &trans &trans   &trans &trans &kp N0
